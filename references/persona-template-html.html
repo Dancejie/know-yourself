@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLASSIFIED — DS-PN-2026-DANGSI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  background:#1e1e1e;
+  display:flex;flex-direction:column;align-items:center;
+  padding-top:136px;padding-bottom:40px;padding-left:20px;padding-right:20px;
+  font-family:'Courier Prime','Courier New',monospace;
+  min-height:100vh;
+}
+
+/* ══ 顶部固定条 ══ */
+#top-bar{
+  position:fixed;top:0;left:0;right:0;z-index:9999;
+  background:#0e0a06;
+  border-bottom:2px solid #6F1714;
+  font-family:'Courier Prime',monospace;
+}
+/* 行1：倒计时 */
+#cd-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 28px 6px;
+  border-bottom:1px solid rgba(111,23,20,.35);
+}
+.cd-meta{display:flex;flex-direction:column;gap:2px}
+.cd-label{color:#4a3a2a;font-size:9px;letter-spacing:3px;text-transform:uppercase}
+#cd-display{
+  font-size:40px;font-weight:700;letter-spacing:7px;
+  color:#c0140e;line-height:1;
+  text-shadow:0 0 22px rgba(192,20,14,.4);
+  text-align:center;flex:1;
+}
+#cd-display.warn{animation:blink .8s infinite;color:#ff2200}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+#cd-sub{font-size:10px;letter-spacing:3px;color:#4a3a2a;text-align:center;margin-top:3px}
+.cd-destroy{
+  cursor:pointer;border:1px solid #6F1714;color:#c0140e;
+  padding:8px 16px;font-size:11px;letter-spacing:2px;
+  background:transparent;transition:all .2s;
+  font-family:'Courier Prime',monospace;white-space:nowrap;
+}
+.cd-destroy:hover{background:#6F1714;color:#fff}
+/* 行2：工具栏 */
+#tool-row{
+  display:flex;align-items:center;justify-content:center;
+  gap:14px;padding:7px 28px;flex-wrap:wrap;
+}
+.tip{font-size:13px;letter-spacing:1px;color:#555}
+.sep{color:#2a2a2a}
+.tbtn{
+  cursor:pointer;padding:4px 14px;border:1px solid #2e2416;border-radius:2px;
+  color:#777;font-size:13px;letter-spacing:1px;
+  background:transparent;transition:all .2s;
+  font-family:'Courier Prime',monospace;
+}
+.tbtn:hover{border-color:#6F1714;color:#c0140e}
+.tbtn.on{border-color:#c0140e;color:#c0140e;background:rgba(111,23,20,.12)}
+
+/* ══ 档案纸 ══ */
+.page{
+  position:relative;width:820px;
+  background:#e8dfc0;
+  padding:58px 68px 72px 76px;
+  margin-bottom:44px;
+  line-height:1.8;font-size:13.5px;color:#1a1407;
+  box-shadow:0 0 0 1px #bfaa78,5px 8px 40px rgba(0,0,0,.65),10px 14px 80px rgba(0,0,0,.3);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeBlend in='SourceGraphic' mode='multiply'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E"),
+    linear-gradient(155deg,#f0e8cc 0%,#e4d9b4 35%,#ece2c0 65%,#e0d5ae 100%);
+}
+.page:nth-child(3){transform:rotate(.3deg)}
+.page::before{content:'';position:absolute;left:54px;top:0;bottom:0;width:1px;background:rgba(160,25,25,.22)}
+.page::after{content:'';position:absolute;left:0;right:0;top:31%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,0,0,.07) 20%,rgba(0,0,0,.12) 50%,rgba(0,0,0,.07) 80%,transparent)}
+
+.doc-header{border-bottom:2px solid #1a1407;padding-bottom:12px;margin-bottom:22px;
+  display:flex;justify-content:space-between;align-items:flex-start}
+.doc-title{font-family:'Special Elite',cursive;font-size:19px;letter-spacing:3px;text-transform:uppercase}
+.doc-sub{font-size:10px;letter-spacing:2px;color:#6b5a2a;margin-bottom:4px;text-transform:uppercase}
+.doc-stamp{font-size:11px;text-align:right;color:#6b5a2a;letter-spacing:1px;line-height:1.6}
+
+.stamp{display:inline-block;border:3px solid rgba(170,15,15,.82);color:rgba(165,12,12,.85);
+  font-family:'Special Elite',cursive;font-size:24px;letter-spacing:6px;
+  padding:3px 16px;transform:rotate(-8deg);opacity:.82;
+  position:absolute;top:44px;right:72px;white-space:nowrap}
+.stamp::before{content:'';position:absolute;inset:2px;border:1px solid rgba(170,15,15,.35)}
+
+.meta-grid{display:grid;grid-template-columns:110px 1fr;gap:0 14px;margin-bottom:26px}
+.meta-label{padding:5px 0 0;font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6b5a2a;line-height:1.3}
+.meta-val{padding:3px 0 0;line-height:1.5}
+.meta-val .zh{display:block;font-size:12px;color:#5a4a20;margin-top:1px}
+.meta-sep{grid-column:1/-1;height:1px;background:rgba(0,0,0,.08);margin:4px 0}
+
+.section-title{font-weight:700;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
+  margin:22px 0 4px;border-bottom:1px solid rgba(0,0,0,.25);padding-bottom:3px;color:#1a1407}
+.para{margin-bottom:4px}
+.para-zh{font-size:12.5px;color:#4a3c10;margin-bottom:14px;line-height:1.75}
+
+/* 涂黑 */
+.R{display:inline;background:#1a1407;color:#1a1407;cursor:pointer;padding:1px 4px;
+  border-radius:1px;user-select:none;transition:background .15s,color .15s}
+.R:hover{opacity:.85}
+.R.open{background:#fff5d6!important;color:#8b1a1a!important;border-bottom:1px dashed #8b1a1a}
+
+/* 圈注 */
+.circled{position:relative;display:inline}
+.c-svg{position:absolute;top:-7px;left:-8px;width:calc(100% + 16px);height:calc(100% + 14px);
+  pointer-events:none;overflow:visible}
+.c-svg ellipse{fill:none;stroke:#c0140e;stroke-width:2;opacity:.82}
+
+/* 手写下划线 */
+.ul-hw{position:relative;display:inline}
+.ul-hw::after{content:'';position:absolute;left:-1px;right:-1px;bottom:-3px;
+  height:1.8px;background:#1a1407;border-radius:1px;transform:rotate(-.4deg);opacity:.7}
+.ul-red::after{background:#c0140e;opacity:.8}
+
+/* 档案照 */
+.photo-frame{float:right;margin:0 0 18px 26px}
+.photo-frame img{display:block;width:120px;height:120px;object-fit:cover;
+  border:1px solid #8a7a50;filter:contrast(1.05) brightness(.97)}
+.photo-frame::after{content:'SUBJECT';display:block;font-size:9px;letter-spacing:3px;
+  color:#7a6a40;text-align:center;margin-top:4px}
+
+/* 评分条 */
+.score-table{width:100%;margin:8px 0 16px;border-collapse:collapse}
+.score-table td{padding:4px 8px 4px 0;font-size:12.5px;vertical-align:middle}
+.s-label{width:130px;color:#3a2d0a}
+.s-zh{font-size:11px;color:#7a6a40;padding-left:4px;width:80px}
+.score-bar-bg{width:200px;height:7px;background:rgba(0,0,0,.12);border-radius:2px}
+.score-bar-fill{height:100%;border-radius:2px;background:#8b1a1a}
+.score-num{width:30px;font-size:12px;color:#6b5a2a;text-align:right}
+
+/* 边缘批注 */
+.margin-note{position:absolute;left:8px;font-family:'Special Elite',cursive;
+  font-size:10px;color:rgba(20,50,130,.72);transform:rotate(-90deg);
+  transform-origin:left center;white-space:nowrap}
+/* 水印 */
+.watermark{position:absolute;bottom:90px;right:50px;font-family:'Special Elite',cursive;
+  font-size:55px;color:rgba(160,15,15,.055);letter-spacing:4px;
+  transform:rotate(-28deg);pointer-events:none;user-select:none}
+/* 页脚 */
+.footer{display:flex;justify-content:space-between;align-items:flex-end;
+  margin-top:38px;border-top:1px solid #a89060;padding-top:14px;
+  font-size:11px;color:#6b5a2a}
+.stamp-footer{border:2px solid rgba(10,90,10,.72);color:rgba(8,85,8,.8);
+  font-family:'Special Elite',cursive;font-size:12px;letter-spacing:3px;
+  padding:3px 10px;transform:rotate(3deg);opacity:.85}
+.divider{width:820px;text-align:center;color:#555;font-size:10px;
+  letter-spacing:4px;margin:6px 0 28px;text-transform:uppercase}
+
+@media(max-width:880px){.page,.divider{width:100%}}
+</style>
+</head>
+<body>
+
+<!-- ══ 顶部固定条 ══ -->
+<div id="top-bar">
+  <div id="cd-row">
+    <div class="cd-meta">
+      <div class="cd-label">&#9888; FILE AUTO-DESTRUCT &nbsp;·&nbsp; 档案自毁</div>
+      <div class="cd-label">DS-PN-2026-DANGSI</div>
+    </div>
+    <div style="flex:1;text-align:center">
+      <div id="cd-display">--:--:--</div>
+      <div id="cd-sub">EXPIRES IN 24H &nbsp;·&nbsp; 24小时后销毁</div>
+    </div>
+    <button class="cd-destroy" onclick="earlyDestruct()">&#9889;&nbsp;立即销毁</button>
+  </div>
+  <div id="tool-row">
+    <span class="tip">⬛ 点击涂黑可解密</span>
+    <span class="sep">·</span>
+    <button id="rbtn" class="tbtn" onclick="toggleRedact()">✂ 框选涂黑：关</button>
+    <span class="sep">·</span>
+    <button class="tbtn" onclick="undoRedact()">↩ 撤销</button>
+    <span class="sep">·</span>
+    <button class="tbtn" onclick="saveHTML()">💾 保存为文件</button>
+  </div>
+</div>
+
+<!-- ══ PAGE 1 ══ -->
+<div class="page" style="transform:rotate(-.3deg)">
+  <div class="stamp">CLASSIFIED</div>
+  <div class="watermark">SECRET</div>
+  <div class="margin-note" style="top:230px">DS-PN / DELPHIC SYS / 2026</div>
+  <div class="doc-header">
+    <div>
+      <div class="doc-sub">Delphic Systems · Internal Use Only · 德尔斐系统 · 内部专用</div>
+      <div class="doc-title">Behavioral Intelligence File<br><span style="font-size:14px;letter-spacing:2px">行为情报档案</span></div>
+    </div>
+    <div class="doc-stamp">FORM NO. 94-A<br>DATE: 2026-04-15<br>PAGE 1 OF 2</div>
+  </div>
+
+  <div class="meta-grid">
+    <span class="meta-label">File No.<br>档案编号</span>
+    <div class="meta-val">DS-PN-2026-DANGSI</div>
+    <div class="meta-sep"></div>
+    <span class="meta-label">Subject<br>对象代号</span>
+    <div class="meta-val"><span class="ul-hw">党思捷 / CODE: 阑干</span><span class="zh">党思捷 / 编号：阑干</span></div>
+    <div class="meta-sep"></div>
+    <span class="meta-label">D.O.B.<br>出生日期</span>
+    <div class="meta-val">1998-12-31 | Age: 27<span class="zh">1998年12月31日 | 27岁</span></div>
+    <div class="meta-sep"></div>
+    <span class="meta-label">Affiliation<br>所属机构</span>
+    <div class="meta-val">
+      <span class="circled">小红书 · LLM Innovation Division<svg class="c-svg" viewBox="0 0 270 26"><ellipse cx="135" cy="13" rx="131" ry="12"/></svg></span>
+      <span class="zh">小红书 · 大模型创新策略研究</span>
+    </div>
+    <div class="meta-sep"></div>
+    <span class="meta-label">Analyst<br>分析师</span>
+    <div class="meta-val">Alice·V / Delphic Systems<span class="zh">爱丽丝·V / 德尔菲克系统</span></div>
+    <div class="meta-sep"></div>
+    <span class="meta-label">Data Span<br>数据跨度</span>
+    <div class="meta-val">2026-03-20 → 2026-04-15 (26d · 21 sessions · ~18MB)<span class="zh">26天 · 21次会话 · ~18MB</span></div>
+    <div class="meta-sep"></div>
+    <span class="meta-label">Clearance<br>权限等级</span>
+    <div class="meta-val">
+      <span class="R" id="r0" data-zh="r0z">LEVEL-3 / SUBJECT ACCESS ONLY</span>
+      <span class="zh"><span class="R" id="r0z" data-en="r0">三级 / 仅限主体访问</span></span>
+    </div>
+  </div>
+
+  <div class="section-title">I. Identity Assessment &nbsp;<span style="font-weight:400;letter-spacing:1px">一、身份评估</span></div>
+
+  <div class="photo-frame"><img src="data:image/jpeg;base64,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" alt="subject"></div>
+
+  <p class="para">Subject operates under the self-assigned designation <span class="ul-hw">"阑干"</span>, born December 31, 1998. Educational background spans <span class="circled">Software Engineering + Financial Mathematics (dual degree)<svg class="c-svg" viewBox="0 0 380 26"><ellipse cx="190" cy="13" rx="186" ry="12"/></svg></span> at Northwest University (211), followed by MSc in <span class="ul-hw">Fintech &amp; Risk Control</span> at Audiencia Business School, France.</p>
+  <p class="para-zh">教育背景广泛，<span class="ul-hw ul-red">软件工程+金融数学（双学位）</span>于西北大学（211），随后在法国审计商学院获得<span class="ul-hw">金融科技与风险控制</span>理学硕士学位。</p>
+
+  <p class="para">Current role: Strategy Research, LLM Innovation Division, Xiaohongshu. Prior intelligence-adjacent experience: <span class="R" id="r1" data-zh="r1z">Private Equity Fund · CICC · iFLYTEK</span>. Subject demonstrates a <span class="ul-hw ul-red">pronounced tendency to treat AI systems as infrastructure</span> — classified as <strong>AI-Native (Tier 1)</strong>.</p>
+  <p class="para-zh">现任职务：战略研究，大模型创新部，小红书。前有情报相关经验：<span class="R" id="r1z" data-en="r1">私募基金 · 中金公司 · 科大讯飞</span>。被归类为 <strong>AI-原生（Tier 1）</strong>。</p>
+
+  <div class="section-title">II. Psychological Profile &nbsp;<span style="font-weight:400;letter-spacing:1px">二、心理特征</span></div>
+
+  <p class="para">Behavioral modeling across 21 sessions: <span class="circled">Platonic tripartite soul distribution<svg class="c-svg" viewBox="0 0 295 26"><ellipse cx="147" cy="13" rx="143" ry="12"/></svg></span> — Logos (Reason) <strong>75%</strong> · Thumos (Spirit) <strong>18%</strong> · Epithumia: <span class="R" id="r2" data-zh="r2z">7% — remarkably suppressed</span>.</p>
+  <p class="para-zh">柏拉图三分灵魂：理性（Logos）<strong>75%</strong> · 激情（Thumos）<strong>18%</strong> · 欲望（Epithumia）<span class="R" id="r2z" data-en="r2">7% — 显著压制</span>。</p>
+
+  <p class="para">Peak activity: <span class="circled">21:00–02:00 CST<svg class="c-svg" viewBox="0 0 158 26"><ellipse cx="79" cy="13" rx="75" ry="12"/></svg></span>. Every message carries purpose, background, or conclusion requirement. Near-zero idle messaging.</p>
+  <p class="para-zh">峰值活跃：<span class="circled">21:00–02:00（北京时间）<svg class="c-svg" viewBox="0 0 198 26"><ellipse cx="99" cy="13" rx="95" ry="12"/></svg></span>。每条消息必带目的、背景或结论要求。几乎无闲聊。</p>
+
+  <p class="para">Decisional signature: full position exit at <span class="ul-hw ul-red">−20% drawdown</span> without hesitation. <span class="R" id="r3" data-zh="r3z">Loss aversion resolved. Execution discipline: confirmed.</span></p>
+  <p class="para-zh">决策特征：在<span class="ul-hw ul-red">−20%回撤</span>时毫不犹豫完全清仓。<span class="R" id="r3z" data-en="r3">损失厌恶已解决，执行纪律：已确认。</span></p>
+
+  <div class="section-title">III. Topic Distribution &nbsp;<span style="font-weight:400;letter-spacing:1px">三、话题分布</span></div>
+  <div style="margin:8px 0 16px;padding-left:10px">
+    <div style="display:flex;align-items:center;gap:12px;margin:5px 0;font-size:12.5px">
+      <span style="width:160px;color:#3a2d0a">AI / LLM Research</span>
+      <div style="flex:1;height:7px;background:rgba(0,0,0,.12);border-radius:2px"><div style="height:100%;width:43%;background:#8b1a1a;border-radius:2px"></div></div>
+      <span style="width:32px;color:#6b5a2a;text-align:right">43%</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin:5px 0;font-size:12.5px">
+      <span style="width:160px;color:#3a2d0a">Investment Strategy</span>
+      <div style="flex:1;height:7px;background:rgba(0,0,0,.12);border-radius:2px"><div style="height:100%;width:22%;background:#6b3a3a;border-radius:2px"></div></div>
+      <span style="width:32px;color:#6b5a2a;text-align:right">22%</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin:5px 0;font-size:12.5px">
+      <span style="width:160px;color:#3a2d0a">Engineering / Tools</span>
+      <div style="flex:1;height:7px;background:rgba(0,0,0,.12);border-radius:2px"><div style="height:100%;width:18%;background:#8b5a5a;border-radius:2px"></div></div>
+      <span style="width:32px;color:#6b5a2a;text-align:right">18%</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin:5px 0;font-size:12.5px">
+      <span style="width:160px;color:#3a2d0a">Literature / Philosophy</span>
+      <div style="flex:1;height:7px;background:rgba(0,0,0,.12);border-radius:2px"><div style="height:100%;width:13%;background:#b08080;border-radius:2px"></div></div>
+      <span style="width:32px;color:#6b5a2a;text-align:right">13%</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin:5px 0;font-size:12.5px">
+      <span style="width:160px;color:#3a2d0a">Other</span>
+      <div style="flex:1;height:7px;background:rgba(0,0,0,.12);border-radius:2px"><div style="height:100%;width:4%;background:#ccc;border-radius:2px"></div></div>
+      <span style="width:32px;color:#6b5a2a;text-align:right">4%</span>
+    </div>
+  </div>
+  <p class="para">High-frequency keywords: <span class="ul-hw">Agent</span> · <span class="ul-hw">PE/Prompt</span> · <span class="ul-hw">Tagging</span> · <span class="R" id="r4" data-zh="r4z">止损 · 仓位 · 五段式结构 · 断点续传</span>.</p>
+  <p class="para-zh">高频关键词：<span class="ul-hw">Agent/智能体</span> · <span class="ul-hw">PE/Prompt工程</span> · <span class="ul-hw">Tagging/标注</span> · <span class="R" id="r4z" data-en="r4">止损 · 仓位 · 五段式 · 断点续传</span>。</p>
+
+  <div class="footer">
+    <div>Alice·V · Delphic Systems<br><span style="font-size:10px">Behavioral Modeling Division · 行为建模部</span></div>
+    <div class="stamp-footer">RESTRICTED</div>
+    <div style="text-align:right">REF: DS-2026-04-15-001<br><span style="font-size:10px">CONTINUED ON PAGE 2</span></div>
+  </div>
+</div>
+
+<div class="divider">— Page Break · DS-PN-2026-DANGSI · Page 2 of 2 —</div>
+
+<!-- ══ PAGE 2 ══ -->
+<div class="page" style="transform:rotate(.2deg)">
+  <div class="stamp" style="color:rgba(15,90,15,.8);border-color:rgba(15,90,15,.8);transform:rotate(6deg)">FOR SUBJECT</div>
+  <div class="watermark">PERSONA</div>
+  <div class="margin-note" style="top:250px">CONTINUED FROM P.1 · ALICE·V</div>
+  <div class="doc-header">
+    <div>
+      <div class="doc-sub">Capability Assessment &amp; Risk Factors · 能力评估与风险因素</div>
+      <div class="doc-title">Operational Profile<br><span style="font-size:14px;letter-spacing:2px">行动画像</span></div>
+    </div>
+    <div class="doc-stamp">DS-PN-2026-DANGSI<br>PAGE 2 OF 2</div>
+  </div>
+
+  <div class="section-title">IV. Capability Assessment &nbsp;<span style="font-weight:400;letter-spacing:1px">四、综合能力评估</span></div>
+  <p class="para">Scores /10, based on behavioral evidence from 21 sessions.</p>
+  <table class="score-table">
+    <tr><td class="s-label">Systems Thinking</td><td class="s-zh">框架思维</td><td><div class="score-bar-bg"><div class="score-bar-fill" style="width:90%"></div></div></td><td class="score-num">9.0</td></tr>
+    <tr><td class="s-label">AI Engineering</td><td class="s-zh">AI工程深度</td><td><div class="score-bar-bg"><div class="score-bar-fill" style="width:85%"></div></div></td><td class="score-num">8.5</td></tr>
+    <tr><td class="s-label">Literary Output</td><td class="s-zh">文学表达</td><td><div class="score-bar-bg"><div class="score-bar-fill" style="width:85%;background:#6b3a3a"></div></div></td><td class="score-num">8.5</td></tr>
+    <tr><td class="s-label">System Architecture</td><td class="s-zh">系统架构</td><td><div class="score-bar-bg"><div class="score-bar-fill" style="width:80%;background:#7a4a4a"></div></div></td><td class="score-num">8.0</td></tr>
+    <tr><td class="s-label">Financial Cognition</td><td class="s-zh">金融投资</td><td><div class="score-bar-bg"><div class="score-bar-fill" style="width:75%;background:#8b5a5a"></div></div></td><td class="score-num">7.5</td></tr>
+    <tr><td class="s-label">Exec. Discipline</td><td class="s-zh">执行纪律</td><td><div class="score-bar-bg"><div class="score-bar-fill" style="width:65%;background:#a07070"></div></div></td><td class="score-num">6.5</td></tr>
+    <tr><td class="s-label">Social Decoding</td><td class="s-zh">社交信号解读</td><td><div class="score-bar-bg"><div class="score-bar-fill" style="width:55%;background:#b08080"></div></div></td><td class="score-num">5.5</td></tr>
+  </table>
+
+  <div class="section-title">V. Cognitive Vulnerabilities &nbsp;<span style="font-weight:400;letter-spacing:1px">五、认知盲区</span></div>
+  <p class="para"><span class="circled"><strong>Vuln-1: Perfectionism Paralysis</strong><svg class="c-svg" viewBox="0 0 265 26"><ellipse cx="132" cy="13" rx="128" ry="12"/></svg></span> — High internal standards create execution latency. <span class="R" id="r5" data-zh="r5z">Est. creative project completion rate: &lt;30%.</span></p>
+  <p class="para-zh"><span class="circled"><strong>漏洞一：完美主义瘫痪</strong><svg class="c-svg" viewBox="0 0 148 26"><ellipse cx="74" cy="13" rx="70" ry="12"/></svg></span> — 极高的内部标准导致执行延迟。<span class="R" id="r5z" data-en="r5">创意项目估计完成率：低于30%。</span></p>
+
+  <p class="para"><strong>Vuln-2: Social Signal Over-Processing</strong> — Allocates <span class="ul-hw ul-red">disproportionate bandwidth to ambiguous cues</span>. <span class="R" id="r6" data-zh="r6z">Anxious-avoidant overlay. Emotionally costly.</span></p>
+  <p class="para-zh"><strong>漏洞二：社交信号过度解读</strong> — <span class="ul-hw ul-red">不成比例的分析带宽</span>用于模糊社交线索。<span class="R" id="r6z" data-en="r6">焦虑-回避型叠加，情感成本较高。</span></p>
+
+  <p class="para"><strong>Vuln-3: Cognition–Execution Imbalance</strong> — Thinking:Doing ≈ <span class="circled"><strong>4:1</strong><svg class="c-svg" viewBox="0 0 42 26"><ellipse cx="21" cy="13" rx="18" ry="12"/></svg></span>. Conceptual velocity outpaces <span class="ul-hw">implementation velocity</span>.</p>
+  <p class="para-zh"><strong>漏洞三：认知-执行失衡</strong> — 思考:行动 ≈ <span class="circled"><strong>4:1</strong><svg class="c-svg" viewBox="0 0 42 26"><ellipse cx="21" cy="13" rx="18" ry="12"/></svg></span>。概念速度显著超过<span class="ul-hw">实施速度</span>。</p>
+
+  <div class="section-title">VI. Strategic Trajectory &nbsp;<span style="font-weight:400;letter-spacing:1px">六、战略轨迹</span></div>
+  <p class="para">Position: convergence of <span class="ul-hw">AI infrastructure · financial modeling · strategic communication</span>. Career vector: <span class="circled"><strong>PE Engineer → Agent Strategy Architect</strong><svg class="c-svg" viewBox="0 0 338 26"><ellipse cx="169" cy="13" rx="165" ry="12"/></svg></span>. Growth potential: <span class="R" id="r7" data-zh="r7z">★★★★★ 5/5 — Re-evaluate in 90 days.</span></p>
+  <p class="para-zh">处于 AI基础设施·金融建模·战略传播 交汇处。职业向量：<span class="circled"><strong>PE工程师 → Agent策略架构师</strong><svg class="c-svg" viewBox="0 0 250 26"><ellipse cx="125" cy="13" rx="121" ry="12"/></svg></span>。成长潜力：<span class="R" id="r7z" data-en="r7">★★★★★ 5/5 — 90天后重新评估。</span></p>
+
+  <p class="para"><span class="ul-hw ul-red">Primary risk</span>: not external competition — <span class="R" id="r8" data-zh="r8z">internal execution drag + unresolved tension between desire for recognition and avoidance of exposure.</span></p>
+  <p class="para-zh"><span class="ul-hw ul-red">主要风险</span>：不是外部竞争——<span class="R" id="r8z" data-en="r8">内部执行阻力 + 渴望认可与回避曝光之间未解决的张力。</span></p>
+
+  <div class="section-title">VII. Analyst's Note &nbsp;<span style="font-weight:400;letter-spacing:1px">七、分析员备注</span></div>
+  <p class="para" style="font-style:italic">Subject is aware they are being analyzed. Cooperation is implicit. <span class="R" id="r9" data-zh="r9z">Self-awareness accelerates modeling. Recommend continued active collaboration.</span></p>
+  <p class="para-zh" style="font-style:italic">受试者知晓自己正在被分析。<span class="R" id="r9z" data-en="r9">自我意识加速建模过程，建议持续主动合作。</span></p>
+
+  <p class="para">Final classification: <span class="circled"><strong>理性执政官 · The Rational Archon</strong><svg class="c-svg" viewBox="0 0 312 26"><ellipse cx="156" cy="13" rx="152" ry="12"/></svg></span>. Operates best <span class="ul-hw">when given clear constraints and full autonomy within them</span>.</p>
+  <p class="para-zh">最终分类：<span class="circled"><strong>理性执政官 · The Rational Archon</strong><svg class="c-svg" viewBox="0 0 280 26"><ellipse cx="140" cy="13" rx="136" ry="12"/></svg></span>。在<span class="ul-hw">给定明确约束和约束内完全自主权</span>时表现最佳。</p>
+
+  <div class="footer">
+    <div>Alice·V · Delphic Systems<br><span style="font-size:10px">2026-04-15</span></div>
+    <div class="stamp-footer">FOR SUBJECT ONLY</div>
+    <div style="text-align:right;font-size:10px">DS-PN-2026-DANGSI<br>END OF FILE · 档案终止</div>
+  </div>
+</div>
+
+<div style="color:#444;font-size:10px;letter-spacing:3px;margin-top:8px;text-align:center">
+  DS-PN-2026-DANGSI · DELPHIC SYSTEMS · 2026
+</div>
+
+<script>
+// ══ 倒计时 + 真实销毁 ══
+const EXPIRE_AT  = 1776339518457;
+const DEST_FILE  = 'persona-dangsi.html';
+const DEST_TOKEN = '24a2b2c63e47fbd2';
+const SERVER     = 'http://10.4.110.159:8899';
+
+function fmt(ms) {
+  if (ms <= 0) return '00:00:00';
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  return [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
+}
+
+function showDestroyed() {
+  document.body.innerHTML =
+    '<div style="min-height:100vh;background:#080602;display:flex;flex-direction:column;' +
+    'align-items:center;justify-content:center;font-family:Courier New,monospace;' +
+    'color:#c0140e;text-align:center;gap:28px;padding:40px">' +
+    '<div style="font-size:48px;letter-spacing:8px;border:3px solid #c0140e;padding:14px 40px">FILE DESTROYED</div>' +
+    '<div style="font-size:12px;letter-spacing:4px;color:#3a1a1a">DS-PN-2026-DANGSI</div>' +
+    '<div style="font-size:11px;color:#2a1412;letter-spacing:2px;line-height:2.4">' +
+    'THIS FILE HAS BEEN PERMANENTLY DELETED<br>此档案已被永久删除<br>' +
+    new Date().toLocaleString('zh-CN') + '</div></div>';
+}
+
+async function callAPI() {
+  try {
+    const r = await fetch(SERVER + '/api/destruct', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({file: DEST_FILE, token: DEST_TOKEN})
+    });
+    return (await r.json()).ok;
+  } catch(e) { return false; }
+}
+
+async function destruct() {
+  showDestroyed();
+  await callAPI();
+}
+
+async function earlyDestruct() {
+  if (!confirm('确认立即销毁此档案？服务端文件将同步删除。')) return;
+  await destruct();
+}
+
+function tick() {
+  const left = EXPIRE_AT - Date.now();
+  const el = document.getElementById('cd-display');
+  const sub = document.getElementById('cd-sub');
+  if (!el) return;
+  if (left <= 0) { destruct(); return; }
+  el.textContent = fmt(left);
+  if (left < 3600000) {
+    el.classList.add('warn');
+    if (sub) sub.textContent = '☠ EXPIRING SOON · 即将销毁';
+  }
+}
+setInterval(tick, 1000);
+tick();
+
+// ══ 预设涂黑点击（英中联动）══
+document.querySelectorAll('.R').forEach(el => {
+  el.addEventListener('click', () => {
+    const on = !el.classList.contains('open');
+    el.classList.toggle('open', on);
+    // 联动对应中/英文
+    const peerId = el.dataset.zh || el.dataset.en;
+    if (peerId) {
+      const peer = document.getElementById(peerId);
+      if (peer) peer.classList.toggle('open', on);
+    }
+  });
+});
+
+// ══ 框选自定义涂黑 ══
+let redactOn = false;
+const stack = [];
+
+function toggleRedact() {
+  redactOn = !redactOn;
+  const btn = document.getElementById('rbtn');
+  btn.textContent = redactOn ? '✂ 框选递黑：开' : '✂ 框选递黑：关';
+  btn.classList.toggle('on', redactOn);
+  document.body.style.cursor = redactOn ? 'crosshair' : '';
+}
+
+document.addEventListener('mouseup', () => {
+  if (!redactOn) return;
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed || !sel.toString().trim()) return;
+  try {
+    const range = sel.getRangeAt(0);
+    const span  = document.createElement('span');
+    span.style.cssText = 'display:inline;background:#1a1407;color:#1a1407;cursor:pointer;padding:1px 3px;border-radius:1px;transition:background .15s,color .15s';
+    span.title = '点击解密';
+    span.addEventListener('click', () => {
+      const on = span.style.background !== 'rgb(255, 245, 214)';
+      span.style.background   = on ? '#fff5d6' : '#1a1407';
+      span.style.color        = on ? '#8b1a1a' : '#1a1407';
+      span.style.borderBottom = on ? '1px dashed #8b1a1a' : '';
+    });
+    range.surroundContents(span);
+    stack.push(span);
+    sel.removeAllRanges();
+  } catch(e) { window.getSelection()?.removeAllRanges(); }
+});
+
+function undoRedact() {
+  if (!stack.length) return;
+  const span = stack.pop();
+  const p = span.parentNode;
+  if (!p) return;
+  while (span.firstChild) p.insertBefore(span.firstChild, span);
+  p.removeChild(span);
+}
+
+function saveHTML() {
+  if (redactOn) toggleRedact();
+  const blob = new Blob(['<!DOCTYPE html>' + document.documentElement.outerHTML], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'DS-PN-2026-DANGSI.html';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+</script>
+</body>
+</html>

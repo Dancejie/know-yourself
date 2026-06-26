@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✦ 猪猪大冒险 ✦</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans SC',sans-serif;background:#0a0a12;color:#e0e0e0;overflow:hidden;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;}
+#app{width:1000px;height:700px;position:relative;overflow:hidden;border-radius:12px;box-shadow:0 0 60px rgba(212,175,55,0.15);}
+
+/* ===== PHASE PANELS ===== */
+.phase{position:absolute;top:0;left:0;width:1000px;height:700px;transition:opacity .4s,transform .4s;display:none;}
+.phase.active{display:flex;opacity:1;transform:translateY(0);}
+.phase.fade-out{opacity:0;transform:translateY(-20px);}
+
+/* ===== PHASE 1: CLASS SELECT ===== */
+#phase-class{flex-direction:column;align-items:center;background:linear-gradient(160deg,#fdf6e3 0%,#fbecc6 40%,#f5dfa0 100%);padding:0;}
+.class-title{margin-top:28px;font-size:32px;font-weight:900;color:#7a5c1e;text-shadow:0 2px 8px rgba(180,130,30,0.2);letter-spacing:4px;}
+.class-subtitle{font-size:13px;color:#a07840;margin-top:6px;letter-spacing:1px;}
+.class-cards{display:flex;gap:10px;margin-top:24px;justify-content:center;flex-wrap:nowrap;}
+.class-card{width:148px;height:230px;border-radius:12px;background:rgba(255,252,240,0.85);border:2px solid #e8d5a0;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;align-items:center;padding:10px 6px 8px;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(160,120,40,0.12);}
+.class-card:hover{border-color:#c8a840;transform:translateY(-4px);box-shadow:0 10px 28px rgba(160,120,40,0.22);}
+.class-card.selected{border-color:#c8960a;box-shadow:0 0 20px rgba(200,150,10,0.35),inset 0 0 16px rgba(200,150,10,0.06);}
+.class-card.recommended{border-color:#c8960a;animation:recPulse 2s infinite;}
+.class-card.recommended::before{content:'✦ 系统推荐';position:absolute;top:0;left:0;right:0;background:linear-gradient(90deg,#d4af37,#f0d060);color:#5a3c00;font-size:10px;font-weight:700;text-align:center;padding:3px;letter-spacing:2px;animation:recBlink 1.5s infinite;z-index:2;}
+.class-card.recommended .card-name{margin-top:4px;}
+@keyframes recPulse{0%,100%{box-shadow:0 0 10px rgba(200,150,10,0.2);}50%{box-shadow:0 0 26px rgba(200,150,10,0.4);}}
+@keyframes recBlink{0%,100%{opacity:1;}50%{opacity:.75;}}
+.class-card img{height:100px;object-fit:contain;margin-bottom:6px;filter:drop-shadow(0 4px 8px rgba(100,70,0,0.18));}
+.card-name{font-size:14px;font-weight:700;color:#5a3c00;margin-top:2px;}
+.card-name-en{font-size:10px;color:#a07840;margin-bottom:6px;}
+.card-stats{width:100%;font-size:11px;line-height:1.6;}
+.card-stats span{display:flex;justify-content:space-between;padding:1px 0;}
+.card-stats .label{color:#a07840;}
+.card-stats .val{color:#5a3c00;font-weight:600;}
+.card-stats .val.hp{color:#2a8a44;}
+.card-stats .val.mp{color:#3366bb;}
+
+.class-actions{display:flex;gap:16px;margin-top:28px;align-items:center;}
+.btn{padding:12px 32px;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Noto Sans SC',sans-serif;letter-spacing:2px;}
+.btn-gold{background:linear-gradient(135deg,#d4af37,#f0d060);color:#000;box-shadow:0 4px 15px rgba(212,175,55,0.3);}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(212,175,55,0.5);}
+.btn-gray{background:rgba(255,248,225,0.7);color:#9a7030;border:1px solid #d4b86a;}
+.btn-gray:hover{border-color:#b89040;color:#7a5010;background:rgba(255,245,210,0.9);}
+
+/* ===== PHASE 2: MONSTER SELECT ===== */
+#phase-monster{flex-direction:column;align-items:center;background:linear-gradient(160deg,#fdf6e3 0%,#fbecc6 40%,#f5dfa0 100%);padding:0;}
+.monster-title{margin-top:28px;font-size:28px;font-weight:900;color:#8a3a1a;text-shadow:0 2px 8px rgba(180,80,30,0.2);letter-spacing:3px;}
+.monster-subtitle{font-size:13px;color:#a06040;margin-top:6px;}
+.monster-cards{display:flex;gap:16px;margin-top:32px;justify-content:center;}
+.monster-card{width:180px;height:220px;border-radius:12px;background:rgba(255,252,240,0.85);border:2px solid #e8d5a0;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;align-items:center;padding:14px 10px;position:relative;box-shadow:0 4px 12px rgba(160,100,40,0.12);}
+.monster-card:hover{border-color:#c8a840;transform:translateY(-4px);box-shadow:0 10px 28px rgba(160,100,40,0.22);}
+.monster-card.selected{border-color:#c8960a;box-shadow:0 0 20px rgba(200,140,10,0.35);}
+.monster-card img{height:100px;object-fit:contain;margin-bottom:6px;filter:drop-shadow(0 4px 8px rgba(100,60,0,0.15));}
+.m-card-name{font-size:14px;font-weight:700;color:#8a3a1a;}
+.m-card-hp{font-size:11px;color:#a06040;margin:4px 0;}
+.m-card-diff{font-size:12px;color:#c89020;letter-spacing:2px;}
+.m-card-tag{font-size:10px;padding:2px 8px;border-radius:4px;margin-top:6px;font-weight:600;}
+.tag-new{background:#d4f0da;color:#2a6a3a;}
+.tag-normal{background:#f0ecc0;color:#7a6010;}
+.tag-hard{background:#f0d0c0;color:#8a3010;}
+.tag-epic{background:#e8d0f4;color:#6a1a8a;}
+.monster-actions{display:flex;gap:16px;margin-top:24px;align-items:center;}
+
+/* ===== PHASE 3: BATTLE ===== */
+#phase-battle{flex-direction:column;background:#0a0a12;background-size:cover;background-position:center;transition:background-image .4s;}
+.battle-dialog{height:120px;background:rgba(5,5,15,0.78);border-bottom:2px solid rgba(212,175,55,0.4);display:flex;align-items:center;padding:12px 20px;gap:14px;flex-shrink:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+.dialog-avatar{width:40px;height:40px;border-radius:50%;border:2px solid #555;object-fit:cover;flex-shrink:0;}
+.dialog-text{flex:1;font-size:13px;color:#ccc;line-height:1.5;min-height:40px;overflow:hidden;}
+.dialog-text .cursor{display:inline-block;width:2px;height:14px;background:#d4af37;animation:cursorBlink .6s infinite;vertical-align:middle;margin-left:2px;}
+@keyframes cursorBlink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+.battle-field{height:360px;position:relative;display:flex;align-items:flex-end;justify-content:space-between;padding:20px 60px 0;background:transparent;flex-shrink:0;overflow:hidden;}
+/* Ground shadow at bottom */
+.battle-field::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(0deg,rgba(0,0,0,0.35),transparent);pointer-events:none;z-index:1;}
+
+.player-side{display:flex;flex-direction:column;align-items:center;z-index:3;position:relative;}
+.player-img{height:220px;object-fit:contain;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.8));transition:transform .2s;image-rendering:auto;}
+.player-info{text-align:center;margin-top:6px;}
+.player-name{font-size:16px;font-weight:700;color:#fff;}
+.player-class-info{font-size:11px;color:#888;margin-top:2px;}
+.player-title-tag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;background:rgba(212,175,55,0.15);color:#d4af37;border:1px solid rgba(212,175,55,0.3);margin-top:4px;}
+
+.monster-side{display:flex;flex-direction:column;align-items:center;z-index:3;position:relative;padding-bottom:0;}
+.monster-battle-name{font-size:14px;font-weight:700;color:#ff4444;text-shadow:0 0 10px rgba(255,68,68,0.3);margin-bottom:4px;}
+.monster-hp-bar-wrap{width:140px;height:8px;background:#333;border-radius:4px;margin-bottom:6px;overflow:hidden;}
+.monster-hp-bar{height:100%;background:linear-gradient(90deg,#ff4444,#ff8844);border-radius:4px;transition:width .4s;}
+.monster-hp-text{font-size:10px;color:#999;margin-bottom:4px;}
+.monster-img{height:240px;object-fit:contain;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.8));animation:monsterFloat 3s ease-in-out infinite;image-rendering:auto;}
+@keyframes monsterFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+
+/* Attack animation */
+.player-img.attacking{animation:playerAtk .35s ease-out;}
+@keyframes playerAtk{0%{transform:translateX(0);}30%{transform:translateX(50px);}100%{transform:translateX(0);}}
+.monster-img.hit{animation:monsterHit .35s ease-out;}
+@keyframes monsterHit{0%{transform:translateX(0);filter:brightness(1);}20%{transform:translateX(20px);filter:brightness(3) hue-rotate(300deg);}100%{transform:translateX(0);filter:brightness(1);}}
+.monster-img.counter-atk{animation:counterAtk .35s ease-out;}
+@keyframes counterAtk{0%{transform:translateX(0);}30%{transform:translateX(-40px);}100%{transform:translateX(0);}}
+
+/* Damage popup */
+.dmg-popup{position:absolute;font-size:24px;font-weight:900;pointer-events:none;animation:dmgFloat .9s ease-out forwards;z-index:10;text-shadow:0 2px 4px rgba(0,0,0,0.8);}
+.dmg-popup.crit{font-size:32px;color:#ff4444;}
+.dmg-popup.heal{color:#44dd88;}
+.dmg-popup.monster-dmg{color:#66aaff;font-size:18px;}
+@keyframes dmgFloat{0%{opacity:1;transform:translateY(0) scale(1);}60%{opacity:1;}100%{opacity:0;transform:translateY(-60px) scale(.7);}}
+
+/* Battle bottom panel */
+.battle-panel{height:220px;background:rgba(5,5,14,0.82);border-top:2px solid rgba(212,175,55,0.7);display:flex;flex-shrink:0;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+.battle-stats{width:250px;padding:16px 20px;display:flex;flex-direction:column;justify-content:center;gap:10px;border-right:1px solid #222;}
+.stat-row{display:flex;align-items:center;gap:8px;}
+.stat-label{font-size:11px;font-weight:700;width:28px;color:#999;}
+.stat-bar-wrap{flex:1;height:14px;background:#222;border-radius:7px;overflow:hidden;position:relative;}
+.stat-bar{height:100%;border-radius:7px;transition:width .4s;}
+.stat-bar.hp{background:linear-gradient(90deg,#22aa44,#44dd88);}
+.stat-bar.mp{background:linear-gradient(90deg,#3366cc,#66aaff);}
+.stat-val{font-size:11px;color:#ccc;min-width:70px;text-align:right;}
+
+.battle-skills{flex:1;padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;}
+.skill-btn{border-radius:8px;border:1px solid #333;background:linear-gradient(180deg,#1a1a2e,#0d0d1a);cursor:pointer;transition:all .2s;display:flex;flex-direction:column;justify-content:center;padding:6px 10px;position:relative;overflow:hidden;}
+.skill-btn:hover:not(:disabled){border-color:#d4af37;transform:translateY(-1px);box-shadow:0 4px 12px rgba(212,175,55,0.2);}
+.skill-btn:active:not(:disabled){transform:translateY(0);}
+.skill-btn:disabled{opacity:.4;cursor:not-allowed;}
+.skill-btn .sk-name{font-size:13px;font-weight:700;color:#fff;}
+.skill-btn .sk-type{font-size:9px;color:#888;}
+.skill-btn .sk-info{font-size:10px;color:#aaa;margin-top:2px;}
+.skill-btn .sk-cost{position:absolute;top:6px;right:8px;font-size:10px;color:#66aaff;font-weight:700;}
+.skill-btn.epic{border-color:rgba(255,170,0,0.3);}
+.skill-btn.epic .sk-name{color:#ffaa00;}
+.skill-btn.epic:hover:not(:disabled){border-color:#ffaa00;box-shadow:0 4px 15px rgba(255,170,0,0.3);}
+
+/* Battle result overlay */
+.result-overlay{position:absolute;top:0;left:0;width:1000px;height:700px;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:100;}
+.result-overlay.active{display:flex;}
+.result-victory{background:rgba(0,0,0,0.85);background-image:radial-gradient(ellipse at center,rgba(212,175,55,0.15) 0%,transparent 70%);}
+.result-defeat{background:rgba(40,0,0,0.88);}
+.result-title{font-size:52px;font-weight:900;letter-spacing:8px;margin-bottom:12px;}
+.result-victory .result-title{color:#d4af37;text-shadow:0 0 40px rgba(212,175,55,0.6);animation:victoryGlow 2s infinite;}
+@keyframes victoryGlow{0%,100%{text-shadow:0 0 40px rgba(212,175,55,0.4);}50%{text-shadow:0 0 60px rgba(212,175,55,0.8),0 0 80px rgba(212,175,55,0.3);}}
+.result-defeat .result-title{color:#ff3333;text-shadow:0 0 40px rgba(255,51,51,0.5);}
+.result-sub{font-size:14px;color:#999;margin-bottom:30px;}
+.result-btns{display:flex;gap:16px;}
+
+/* Particles */
+.particle{position:absolute;width:3px;height:3px;border-radius:50%;pointer-events:none;animation:particleFade 1s ease-out forwards;z-index:5;}
+@keyframes particleFade{0%{opacity:1;transform:translate(0,0) scale(1);}100%{opacity:0;transform:translate(var(--px),var(--py)) scale(0);}}
+
+/* Screen shake */
+.shake{animation:shake .3s ease-out;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+
+/* Flash */
+.flash-overlay{position:absolute;top:0;left:0;width:1000px;height:700px;background:white;opacity:0;pointer-events:none;z-index:50;transition:opacity .1s;}
+
+/* Level up notification */
+.lv-up{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:36px;font-weight:900;color:#d4af37;text-shadow:0 0 30px rgba(212,175,55,0.6);pointer-events:none;z-index:60;animation:lvUp 1.5s ease-out forwards;}
+@keyframes lvUp{0%{opacity:0;transform:translate(-50%,-50%) scale(.5);}30%{opacity:1;transform:translate(-50%,-50%) scale(1.2);}60%{opacity:1;transform:translate(-50%,-50%) scale(1);}100%{opacity:0;transform:translate(-50%,-60%) scale(1);}}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- Flash overlay -->
+  <div class="flash-overlay" id="flash"></div>
+
+  <!-- PHASE 1: CLASS SELECT -->
+  <div class="phase active" id="phase-class">
+    <div class="class-title">✦ 选择你的职业 ✦</div>
+    <div class="class-subtitle">系统根据你的成长档案推荐了最匹配的职业</div>
+    <div class="class-cards" id="class-cards"></div>
+    <div class="class-actions">
+      <button class="btn btn-gold" id="btn-confirm-class">确认职业</button>
+      <button class="btn btn-gray" id="btn-random-class">随机选择</button>
+    </div>
+  </div>
+
+  <!-- PHASE 2: MONSTER SELECT -->
+  <div class="phase" id="phase-monster">
+    <div class="monster-title">⚔ 选择挑战目标</div>
+    <div class="monster-subtitle">今日未完成任务数越多，强敌越难对付</div>
+    <div class="monster-cards" id="monster-cards"></div>
+    <div class="monster-actions">
+      <button class="btn btn-gold" id="btn-start-battle">开始战斗</button>
+      <button class="btn btn-gray" id="btn-back-class">← 返回选职业</button>
+    </div>
+  </div>
+
+  <!-- PHASE 3: BATTLE -->
+  <div class="phase" id="phase-battle">
+    <div class="battle-dialog">
+      <img class="dialog-avatar" id="dialog-avatar" src="" alt="">
+      <div class="dialog-text" id="dialog-text"></div>
+    </div>
+    <div class="battle-field" id="battle-field">
+      <div class="player-side">
+        <img class="player-img" id="player-img" src="" alt="">
+        <div class="player-info">
+          <div class="player-name" id="player-name"></div>
+          <div class="player-class-info" id="player-class-info"></div>
+          <div class="player-title-tag" id="player-title"></div>
+        </div>
+      </div>
+      <div class="monster-side">
+        <div class="monster-battle-name" id="monster-battle-name"></div>
+        <div class="monster-hp-bar-wrap"><div class="monster-hp-bar" id="monster-hp-bar"></div></div>
+        <div class="monster-hp-text" id="monster-hp-text"></div>
+        <img class="monster-img" id="monster-img" src="" alt="">
+      </div>
+    </div>
+    <div class="battle-panel">
+      <div class="battle-stats">
+        <div class="stat-row">
+          <span class="stat-label">HP</span>
+          <div class="stat-bar-wrap"><div class="stat-bar hp" id="player-hp-bar"></div></div>
+          <span class="stat-val" id="player-hp-text"></span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">MP</span>
+          <div class="stat-bar-wrap"><div class="stat-bar mp" id="player-mp-bar"></div></div>
+          <span class="stat-val" id="player-mp-text"></span>
+        </div>
+      </div>
+      <div class="battle-skills" id="battle-skills"></div>
+    </div>
+    <!-- Result overlays -->
+    <div class="result-overlay result-victory" id="result-victory">
+      <div class="result-title">VICTORY!</div>
+      <div class="result-sub" id="victory-sub"></div>
+      <div class="result-btns">
+        <button class="btn btn-gold" onclick="restartSameMonster()">再次挑战</button>
+        <button class="btn btn-gray" onclick="changeMonster()">换个怪物</button>
+      </div>
+    </div>
+    <div class="result-overlay result-defeat" id="result-defeat">
+      <div class="result-title">DEFEAT</div>
+      <div class="result-sub" id="defeat-sub"></div>
+      <div class="result-btns">
+        <button class="btn btn-gold" onclick="restartSameMonster()">复仇</button>
+        <button class="btn btn-gray" onclick="goBackToClass()">换职业</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SPRITE_CDN = {
+  "pig_knight.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/8beea53ef185446bb1dec4d78371c140.png",
+  "pig_mage.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/f5665012343440f68c5e6becc2337a90.png",
+  "pig_warrior.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/3450b7464f7847e4b8bcba31e7b91729.png",
+  "pig_thief.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/04dba9516e98475b9a41547bdcd7efb8.png",
+  "pig_paladin.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/0d56670962ff484595f879267fe30ea7.png",
+  "pig_warlock.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/bc2e2b88a6fd4f668e0cf76a3d83b216.png",
+  "monster_slime.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/d63cbc81579e41ce93fc19f7d426510e.png",
+  "monster_goblin.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/d4ac5bc623b94016884b86597b9de0c8.png",
+  "monster_troll.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/0f1b41604f004560bdd350c100320f67.png",
+  "monster_dragon.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/531bc47867534312907f827d0b642964.png",
+  "battle_knight.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/1f4578411c354ccd8c353d127645d798.png",
+  "battle_mage.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/0f9af08dfb874eef88017144ae64d542.png",
+  "battle_warrior.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/a85852f0522c4509b0b59086891847bf.png",
+  "battle_thief.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/eb944971a97e4cc78e53180b19f59ae0.png",
+  "battle_paladin.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/1e8636c5e3764319b928fc12a06332e6.png",
+  "battle_warlock.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/0252997e2e674105a811eee128c5d498.png",
+  "battle_slime.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/65fd370681814ee7a44412d1119d8e17.png",
+  "battle_goblin.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/dd23df9b1eb944039c00ba706d64b86d.png",
+  "battle_troll.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/2524305aed984ebebaf7c4c357964e60.png",
+  "battle_dragon.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/4a680ad79ea34c0cbf155ec3e4f1df7b.png",
+  "bg_meadow.png": "https://ep-redim-i1.xhscdn.com/redcity_open/20260428/91761ea8ebfb418b96b8f102a6b41c70.png",
+  "bg_forest.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/fae7565dcef148058762f783980bef33.png",
+  "bg_castle.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/06715b6a68024c9fa4d4c6e5173afbc4.png",
+  "bg_dungeon.png": "https://ep-redim-i2.xhscdn.com/redcity_open/20260428/6c38daf0aba94750901d19ed0840a4e2.png",
+};
+const SPRITE_BASE = '';
+function spriteUrl(name){ return SPRITE_CDN[name] || name; }
+const CHARACTER = {
+  name:"阑干", alias:"桐人", level:13,
+  titles:["工具建造者","精密体系建筑师","Inspire Your Life","规则锻造者"],
+  recommendedClass:"mage",
+  recommendedReason:"框架思维 MAX · 精密体系建筑师称号 → 系统推荐：魔法师"
+};
+const CLASS_DATA = {
+  knight:{name:"骑士",en:"Knight",img:"pig_knight.png",battleImg:"battle_knight.png",maxHp:600,maxMp:180,color:"#d4af37",atkType:"物理",intro:"正义必将战胜邪恶！"},
+  mage:{name:"魔法师",en:"Mage",img:"pig_mage.png",battleImg:"battle_mage.png",maxHp:350,maxMp:480,color:"#8888ff",atkType:"魔法",intro:"感受吧！奥术的力量！"},
+  warrior:{name:"战士",en:"Warrior",img:"pig_warrior.png",battleImg:"battle_warrior.png",maxHp:500,maxMp:250,color:"#ff6644",atkType:"物理",intro:"今天，我不会退缩！"},
+  thief:{name:"盗贼",en:"Thief",img:"pig_thief.png",battleImg:"battle_thief.png",maxHp:380,maxMp:300,color:"#44dd88",atkType:"混合",intro:"没人能追上我的速度..."},
+  paladin:{name:"圣骑士",en:"Paladin",img:"pig_paladin.png",battleImg:"battle_paladin.png",maxHp:550,maxMp:350,color:"#88ccff",atkType:"神圣",intro:"神明与我同在！"},
+  warlock:{name:"术士",en:"Warlock",img:"pig_warlock.png",battleImg:"battle_warlock.png",maxHp:320,maxMp:520,color:"#aa44ff",atkType:"魔法",intro:"灵魂，将化为我的养料。"}
+};
+const SKILL_DATA = {
+  knight:[
+    {name:"圣盾冲锋",type:"物理",power:82,mp:15,desc:"高防御物理攻击"},
+    {name:"判决之剑",type:"物理",power:95,mp:25,desc:"强力审判斩击"},
+    {name:"神圣护盾",type:"辅助",power:0,mp:10,desc:"回复50HP",heal:50},
+    {name:"荣耀打击",type:"史诗",power:100,mp:40,desc:"最强物理攻击"}
+  ],
+  mage:[
+    {name:"奥术飞弹",type:"魔法",power:75,mp:12,desc:"基础奥术攻击"},
+    {name:"冰霜新星",type:"魔法",power:88,mp:28,desc:"冰霜范围伤害"},
+    {name:"燃烧大地",type:"魔法",power:92,mp:35,desc:"烈焰焚毁一切"},
+    {name:"奥法爆发",type:"史诗",power:105,mp:50,desc:"终极奥术力量"}
+  ],
+  warrior:[
+    {name:"旋风斩",type:"物理",power:80,mp:15,desc:"旋转斩击"},
+    {name:"战嚎",type:"辅助",power:0,mp:10,desc:"回复30HP",heal:30},
+    {name:"破甲打击",type:"物理",power:90,mp:25,desc:"无视防御重击"},
+    {name:"英雄之跃",type:"史诗",power:98,mp:40,desc:"从天而降的审判"}
+  ],
+  thief:[
+    {name:"暗影刺击",type:"物理",power:72,mp:8,desc:"快速暗影攻击"},
+    {name:"毒雾连击",type:"混合",power:85,mp:20,desc:"毒雾+连击伤害"},
+    {name:"背刺暴击",type:"物理",power:0,mp:30,desc:"双倍伤害",critMult:2},
+    {name:"烟雾撤退",type:"辅助",power:0,mp:15,desc:"回复40MP",mpRestore:40}
+  ],
+  paladin:[
+    {name:"神圣冲锋",type:"神圣",power:85,mp:18,desc:"神光贯穿敌方防御"},
+    {name:"圣光审判",type:"神圣",power:92,mp:30,desc:"神明之怒，无视护甲"},
+    {name:"圣盾祈祷",type:"辅助",power:0,mp:15,desc:"圣光庇护，回复60HP",heal:60},
+    {name:"天罚降临",type:"史诗",power:102,mp:45,desc:"神明亲降，毁灭邪恶"}
+  ],
+  warlock:[
+    {name:"暗影箭",type:"魔法",power:78,mp:10,desc:"基础暗影攻击"},
+    {name:"灵魂汲取",type:"魔法",power:85,mp:20,desc:"吸取20HP",heal:20},
+    {name:"诅咒枷锁",type:"魔法",power:88,mp:30,desc:"诅咒持续伤害"},
+    {name:"毁灭之击",type:"史诗",power:108,mp:55,desc:"终极毁灭魔法"}
+  ]
+};
+const MONSTER_DATA = {
+  slime:{name:"星冕史莱姆",maxHp:200,atk:[15,25],img:"monster_slime.png",battleImg:"battle_slime.png",bg:"bg_meadow.png",skills:["粘液喷射","弹跳攻击","魔法吸收"],tag:"新手推荐",tagClass:"tag-new"},
+  goblin:{name:"混乱哥布林",maxHp:280,atk:[20,35],img:"monster_goblin.png",battleImg:"battle_goblin.png",bg:"bg_forest.png",skills:["乱棍猛击","投石攻击","卑鄙偷袭"],tag:"普通",tagClass:"tag-normal"},
+  troll:{name:"蛮力巨魔",maxHp:420,atk:[30,50],img:"monster_troll.png",battleImg:"battle_troll.png",bg:"bg_castle.png",skills:["大地震击","狂暴之击","再生愈合"],tag:"困难",tagClass:"tag-hard"},
+  dragon:{name:"远古龙王",maxHp:600,atk:[45,70],img:"monster_dragon.png",battleImg:"battle_dragon.png",bg:"bg_dungeon.png",skills:["龙息烈焰","龙爪横扫","恐惧咆哮"],tag:"史诗Boss",tagClass:"tag-epic"}
+};
+const DIFFICULTY_STARS = {slime:"★☆☆☆",goblin:"★★☆☆",troll:"★★★☆",dragon:"★★★★"};
+
+// ===== STATE =====
+let selectedClass = 'mage';
+let selectedMonster = 'goblin';
+let playerHp, playerMp, monsterHp;
+let isPlayerTurn = true;
+let battleActive = false;
+let typewriterTimer = null;
+
+// ===== PHASE MANAGEMENT =====
+function showPhase(id){
+  document.querySelectorAll('.phase').forEach(p=>{
+    if(p.classList.contains('active')){
+      p.classList.add('fade-out');
+      setTimeout(()=>{p.classList.remove('active','fade-out');},400);
+    }
+  });
+  setTimeout(()=>{
+    const el = document.getElementById('phase-'+id);
+    el.classList.add('active');
+  },420);
+}
+
+// ===== PHASE 1: BUILD CLASS CARDS =====
+function buildClassCards(){
+  const container = document.getElementById('class-cards');
+  container.innerHTML = '';
+  const classes = ['knight','mage','warrior','thief','paladin','warlock'];
+  const hpColors = {'骑士':'#44dd88','魔法师':'#66aaff','战士':'#44dd88','盗贼':'#44dd88','术士':'#44dd88'};
+  classes.forEach(c=>{
+    const cd = CLASS_DATA[c];
+    const card = document.createElement('div');
+    card.className = 'class-card' + (c===CHARACTER.recommendedClass?' recommended':'');
+    card.dataset.class = c;
+    if(c===selectedClass) card.classList.add('selected');
+    card.innerHTML = `
+      <img src="${spriteUrl(cd.img)}" alt="${cd.name}" loading="lazy">
+      <div class="card-name">${cd.name}</div>
+      <div class="card-name-en">${cd.en}</div>
+      <div class="card-stats">
+        <span><span class="label">HP</span><span class="val hp">${cd.maxHp}</span></span>
+        <span><span class="label">MP</span><span class="val mp">${cd.maxMp}</span></span>
+        <span><span class="label">特长</span><span class="val" style="color:${cd.color}">${cd.atkType}</span></span>
+      </div>`;
+    card.addEventListener('click',()=>{
+      document.querySelectorAll('.class-card').forEach(x=>x.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedClass = c;
+    });
+    container.appendChild(card);
+  });
+}
+
+document.getElementById('btn-confirm-class').addEventListener('click',()=>{
+  showPhase('monster');
+});
+document.getElementById('btn-random-class').addEventListener('click',()=>{
+  const classes = Object.keys(CLASS_DATA);
+  selectedClass = classes[Math.floor(Math.random()*classes.length)];
+  document.querySelectorAll('.class-card').forEach(x=>{
+    x.classList.remove('selected');
+    if(x.dataset.class===selectedClass) x.classList.add('selected');
+  });
+});
+
+// ===== PHASE 2: BUILD MONSTER CARDS =====
+function buildMonsterCards(){
+  const container = document.getElementById('monster-cards');
+  container.innerHTML = '';
+  const monsters = ['slime','goblin','troll','dragon'];
+  monsters.forEach(m=>{
+    const md = MONSTER_DATA[m];
+    const diffText = DIFFICULTY_STARS[m];
+    const card = document.createElement('div');
+    card.className = 'monster-card' + (m===selectedMonster?' selected':'');
+    card.dataset.monster = m;
+    card.innerHTML = `
+      <img src="${spriteUrl(md.img)}" alt="${md.name}" loading="lazy">
+      <div class="m-card-name">${md.name}</div>
+      <div class="m-card-hp">HP: ${md.maxHp}</div>
+      <div class="m-card-diff">${diffText}</div>
+      <div class="m-card-tag ${md.tagClass}">${md.tag}</div>`;
+    card.addEventListener('click',()=>{
+      document.querySelectorAll('.monster-card').forEach(x=>x.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedMonster = m;
+    });
+    container.appendChild(card);
+  });
+}
+
+document.getElementById('btn-start-battle').addEventListener('click',()=>{
+  initBattle();
+  showPhase('battle');
+});
+document.getElementById('btn-back-class').addEventListener('click',()=>{
+  showPhase('class');
+});
+
+// ===== PHASE 3: BATTLE =====
+function initBattle(){
+  const cd = CLASS_DATA[selectedClass];
+  const md = MONSTER_DATA[selectedMonster];
+  playerHp = cd.maxHp;
+  playerMp = cd.maxMp;
+  monsterHp = md.maxHp;
+  isPlayerTurn = true;
+  battleActive = true;
+
+  // Setup player — use transparent battle sprite
+  document.getElementById('player-img').src = spriteUrl(cd.battleImg || cd.img);
+  document.getElementById('player-name').textContent = CHARACTER.name + ' · ' + CHARACTER.alias;
+  document.getElementById('player-class-info').textContent = `Lv.${CHARACTER.level} ${cd.name}（${cd.atkType}）`;
+  const title = CHARACTER.titles[Math.floor(Math.random()*CHARACTER.titles.length)];
+  document.getElementById('player-title').textContent = '「' + title + '」';
+
+  // Setup monster — use transparent battle sprite
+  document.getElementById('monster-img').src = spriteUrl(md.battleImg || md.img);
+  document.getElementById('monster-battle-name').textContent = md.name;
+  document.getElementById('dialog-avatar').src = spriteUrl(md.img);
+
+  // Set battle background — full phase coverage
+  if(md.bg){
+    const pb = document.getElementById('phase-battle');
+    pb.style.backgroundImage = `url('${spriteUrl(md.bg)}')`;
+    pb.style.backgroundSize = 'cover';
+    pb.style.backgroundPosition = 'center center';
+  }
+
+  updateBars();
+  buildSkillButtons();
+
+  // Hide result overlays
+  document.getElementById('result-victory').classList.remove('active');
+  document.getElementById('result-defeat').classList.remove('active');
+
+  // Opening dialog
+  setTimeout(()=>{
+    showDialog(md.name + ' 出现了！');
+    setTimeout(()=>{
+      showDialog(cd.intro);
+    }, 2000);
+  }, 500);
+}
+
+function updateBars(){
+  const cd = CLASS_DATA[selectedClass];
+  const md = MONSTER_DATA[selectedMonster];
+
+  document.getElementById('player-hp-bar').style.width = (playerHp/cd.maxHp*100)+'%';
+  document.getElementById('player-hp-text').textContent = playerHp + ' / ' + cd.maxHp;
+  document.getElementById('player-mp-bar').style.width = (playerMp/cd.maxMp*100)+'%';
+  document.getElementById('player-mp-text').textContent = playerMp + ' / ' + cd.maxMp;
+  document.getElementById('monster-hp-bar').style.width = (monsterHp/md.maxHp*100)+'%';
+  document.getElementById('monster-hp-text').textContent = monsterHp + ' / ' + md.maxHp;
+}
+
+function buildSkillButtons(){
+  const container = document.getElementById('battle-skills');
+  container.innerHTML = '';
+  const skills = SKILL_DATA[selectedClass];
+  const cd = CLASS_DATA[selectedClass];
+  skills.forEach((sk,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'skill-btn' + (sk.type==='史诗'?' epic':'');
+    const isEpic = sk.type==='史诗';
+    btn.innerHTML = `
+      <span class="sk-name">${sk.name}</span>
+      <span class="sk-type">${sk.type} · ${sk.desc}</span>
+      <span class="sk-info">${sk.power>0?'威力:'+sk.power:sk.heal?'回复:'+sk.heal+'HP':sk.mpRestore?'回复:'+sk.mpRestore+'MP':''}</span>
+      <span class="sk-cost">MP ${sk.mp}</span>`;
+    btn.addEventListener('click',()=>{
+      if(!isPlayerTurn || !battleActive) return;
+      if(playerMp < sk.mp){
+        showDialog('MP不足！需要 ' + sk.mp + ' MP');
+        return;
+      }
+      useSkill(sk, i);
+    });
+    container.appendChild(btn);
+  });
+}
+
+function useSkill(sk, idx){
+  if(!battleActive) return;
+  isPlayerTurn = false;
+  playerMp -= sk.mp;
+
+  // Disable all buttons during turn
+  document.querySelectorAll('.skill-btn').forEach(b=>b.disabled=true);
+
+  // Animate player attack
+  const pImg = document.getElementById('player-img');
+  pImg.classList.remove('attacking');
+  void pImg.offsetWidth;
+  pImg.classList.add('attacking');
+
+  // Calculate damage
+  const md = MONSTER_DATA[selectedMonster];
+  let dmg = 0;
+  let isHeal = false;
+  let isMpRestore = false;
+
+  if(sk.heal){
+    dmg = -sk.heal; // negative = heal
+    isHeal = true;
+  } else if(sk.mpRestore){
+    isMpRestore = true;
+    playerMp = Math.min(playerMp + sk.mpRestore, CLASS_DATA[selectedClass].maxMp);
+  } else {
+    let power = sk.power;
+    if(sk.critMult) power = power * sk.critMult;
+    dmg = Math.floor(power * (CHARACTER.level/10 + 0.5) * (0.85 + Math.random()*0.3));
+    const isCrit = Math.random() < 0.15;
+    if(isCrit) dmg = Math.floor(dmg * 1.5);
+
+    // Apply to monster
+    monsterHp = Math.max(0, monsterHp - dmg);
+    showDmgPopup(dmg, isCrit, false);
+
+    // Monster hit animation
+    const mImg = document.getElementById('monster-img');
+    setTimeout(()=>{
+      mImg.classList.remove('hit');
+      void mImg.offsetWidth;
+      mImg.classList.add('hit');
+      document.getElementById('app').classList.add('shake');
+      setTimeout(()=>document.getElementById('app').classList.remove('shake'),300);
+    }, 200);
+  }
+
+  if(isHeal){
+    playerHp = Math.min(playerHp + sk.heal, CLASS_DATA[selectedClass].maxHp);
+    setTimeout(()=>showDmgPopup(sk.heal, false, true), 300);
+    showDialog(CHARACTER.alias + ' 使用了 ' + sk.name + '！HP回复 ' + sk.heal + '！');
+  } else if(isMpRestore){
+    setTimeout(()=>showDmgPopup('+'+sk.mpRestore+'MP', false, true), 300);
+    showDialog(CHARACTER.alias + ' 使用了 ' + sk.name + '！MP回复 ' + sk.mpRestore + '！');
+  } else {
+    showDialog(CHARACTER.alias + ' 使用了 ' + sk.name + '！' + (dmg > 100 ? '暴击！！' : '造成 ' + dmg + ' 点伤害！'));
+  }
+
+  updateBars();
+
+  // Check monster death
+  if(monsterHp <= 0){
+    battleActive = false;
+    setTimeout(()=>showResult('victory'), 1200);
+    return;
+  }
+
+  // Monster counter-attack after delay
+  setTimeout(()=>{
+    if(!battleActive) return;
+    monsterCounterAttack();
+  }, 1400);
+}
+
+function monsterCounterAttack(){
+  const md = MONSTER_DATA[selectedMonster];
+  const cd = CLASS_DATA[selectedClass];
+  const skillName = md.skills[Math.floor(Math.random()*md.skills.length)];
+  const dmg = md.atk[0] + Math.floor(Math.random() * (md.atk[1] - md.atk[0]));
+
+  // Monster attack animation
+  const mImg = document.getElementById('monster-img');
+  mImg.classList.remove('counter-atk');
+  void mImg.offsetWidth;
+  mImg.classList.add('counter-atk');
+
+  showDialog(md.name + ' 使用了 ' + skillName + '！');
+
+  setTimeout(()=>{
+    playerHp = Math.max(0, playerHp - dmg);
+    updateBars();
+    showDmgPopup(dmg, false, false, true);
+
+    if(playerHp <= 0){
+      battleActive = false;
+      setTimeout(()=>showResult('defeat'), 1200);
+      return;
+    }
+
+    // Back to player turn
+    setTimeout(()=>{
+      isPlayerTurn = true;
+      // Re-enable buttons
+      document.querySelectorAll('.skill-btn').forEach(b=>{
+        const idx = Array.from(b.parentNode.children).indexOf(b);
+        const sk = SKILL_DATA[selectedClass][idx];
+        b.disabled = playerMp < sk.mp;
+      });
+    }, 500);
+  }, 400);
+}
+
+function showDmgPopup(value, crit, isHealOrBuff, isMonsterDmg){
+  const field = document.getElementById('battle-field');
+  const popup = document.createElement('div');
+  popup.className = 'dmg-popup';
+  if(crit) popup.classList.add('crit');
+  if(isHealOrBuff) popup.classList.add('heal');
+  if(isMonsterDmg) popup.classList.add('monster-dmg');
+
+  popup.textContent = crit ? '💥 '+value+'!' : (isHealOrBuff ? (typeof value==='string' ? value : '+'+value) : '-'+value);
+
+  // Position
+  if(isMonsterDmg){
+    // Show near player
+    const pSide = document.querySelector('.player-side');
+    const rect = pSide.getBoundingClientRect();
+    const fieldRect = field.getBoundingClientRect();
+    popup.style.left = (rect.left - fieldRect.left + rect.width/2 - 20) + 'px';
+    popup.style.top = (rect.top - fieldRect.top - 10) + 'px';
+  } else {
+    // Show near monster
+    const mSide = document.querySelector('.monster-side');
+    const rect = mSide.getBoundingClientRect();
+    const fieldRect = field.getBoundingClientRect();
+    popup.style.left = (rect.left - fieldRect.left + rect.width/2 - 20) + 'px';
+    popup.style.top = (rect.top - fieldRect.top + 40) + 'px';
+  }
+
+  field.appendChild(popup);
+  setTimeout(()=>popup.remove(), 1000);
+}
+
+function showDialog(text){
+  const el = document.getElementById('dialog-text');
+  if(typewriterTimer) clearInterval(typewriterTimer);
+  el.innerHTML = '';
+  let i = 0;
+  typewriterTimer = setInterval(()=>{
+    if(i < text.length){
+      el.innerHTML = text.substring(0, i+1) + '<span class="cursor"></span>';
+      i++;
+    } else {
+      clearInterval(typewriterTimer);
+      typewriterTimer = null;
+      el.innerHTML = text;
+    }
+  }, 35);
+}
+
+function showResult(type){
+  const cd = CLASS_DATA[selectedClass];
+  const md = MONSTER_DATA[selectedMonster];
+  if(type==='victory'){
+    const exp = Math.floor(md.maxHp / 5);
+    document.getElementById('victory-sub').textContent =
+      `击败了 ${md.name}！获得 ${exp} 经验值 · ${cd.name} 的荣耀将永载史册！`;
+    document.getElementById('result-victory').classList.add('active');
+  } else {
+    document.getElementById('defeat-sub').textContent =
+      `被 ${md.name} 击败了...${cd.name} 不会轻易放弃！`;
+    document.getElementById('result-defeat').classList.add('active');
+  }
+}
+
+function restartSameMonster(){
+  initBattle();
+  document.getElementById('result-victory').classList.remove('active');
+  document.getElementById('result-defeat').classList.remove('active');
+}
+function changeMonster(){
+  document.getElementById('result-victory').classList.remove('active');
+  document.getElementById('result-defeat').classList.remove('active');
+  showPhase('monster');
+}
+function goBackToClass(){
+  document.getElementById('result-victory').classList.remove('active');
+  document.getElementById('result-defeat').classList.remove('active');
+  showPhase('class');
+}
+
+// ===== INIT =====
+buildClassCards();
+buildMonsterCards();
+</script>
+</body>
+</html>
